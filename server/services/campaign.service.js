@@ -2,13 +2,14 @@ import Campaign from "../models/campaign.model.js";
 import Customer from "../models/customer.model.js";
 import { BaseService } from "../services/base.service.js";
 import { queryBuilder } from "../utils/queryBuilder.util.js";
+import messageSenderService from "../services/messageSender.service.js";
 
 class CampaignService extends BaseService {
   constructor() {
     super(Campaign);
   }
 
-/**
+  /**
    * Creates a new campaign and finds the matching audience based on the provided rules and operator.
    *
    * @param {Object} params - Campaign creation parameters.
@@ -30,10 +31,16 @@ class CampaignService extends BaseService {
       audienceSize: matchingAudience.length,
     });
 
+    await messageSenderService.sendCampaignMessages({
+      campaign,
+      audience: matchingAudience,
+      userId,
+    });
+
     return { campaign, audience: matchingAudience };
   }
 
- /**
+  /**
    * Retrieves all campaigns for a specific user, sorted by creation date in descending order.
    *
    * @param {import('mongoose').Types.ObjectId} userId - MongoDB ObjectId of the user.
